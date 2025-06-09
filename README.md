@@ -15,20 +15,20 @@
 strapi-next
 ├── server
 │   ├── src
-│   │   ├── api # Strapi API routes
-│   │   ├── components # Strapi components
-│   │   ├── config # Strapi config
-│   │   ├── content-types # Strapi content types
-│   │   ├── data # Strapi data
-│   │   ├── plugins # Strapi plugins
-│   │   ├── public # Strapi public files
-│   │   ├── routes # Strapi routes
-│   │   ├── scripts # Strapi scripts
-│   │   ├── services # Strapi services
-│   │   └── utils # Strapi utils
+│   │   ├── api                 # Strapi API routes
+│   │   ├── components          # Strapi components
+│   │   ├── config              # Strapi config
+│   │   ├── content-types       # Strapi content types
+│   │   ├── data                # Strapi data
+│   │   ├── plugins             # Strapi plugins
+│   │   ├── public              # Strapi public files
+│   │   ├── routes              # Strapi routes
+│   │   ├── scripts             # Strapi scripts
+│   │   ├── services            # Strapi services
+│   │   └── utils               # Strapi utils
 ├── next-app
 │   ├── src
-│   │   ├── app # Next.js app router
-│   │   ├── app/components # UI components
+│   │   ├── app                 # Next.js app router
+│   │   ├── app/components      # UI components
 │   └── package.json
 ```
