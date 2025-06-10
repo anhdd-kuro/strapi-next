@@ -3,7 +3,7 @@
  */
 
 import { jwtDecode } from "jwt-decode";
-import { API_URL } from "./api";
+import { API_URL, fetchCMS } from "./api"; // Added fetchCMS import
 import {
   StrapiLoginResponse,
   StrapiUser,
@@ -76,25 +76,19 @@ export const login = async (
   password: string
 ): Promise<StrapiLoginResponse> => {
   try {
-    const response = await fetch(`${API_URL}/api/auth/local`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ identifier, password }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || "Authentication failed");
-    }
-
-    const data: StrapiLoginResponse = await response.json();
+    const data = await fetchCMS<StrapiLoginResponse>(
+      { path: "/api/auth/local" },
+      {
+        method: "POST",
+        body: JSON.stringify({ identifier, password }),
+      }
+    );
     setToken(data.jwt);
     return data;
   } catch (error) {
-    console.error("Login error:", error);
-    throw error;
+    // fetchCMS already logs the error, so we can re-throw or handle specifically
+    console.error("Login specific error:", error instanceof Error ? error.message : error);
+    throw error; // Re-throw to be caught by the calling component
   }
 };
 
@@ -115,30 +109,31 @@ export const logout = (): void => {
 export const getCurrentUser = async (): Promise<StrapiUser | null> => {
   const token = getToken();
   if (!token || isTokenExpired(token)) {
+    if (token) removeToken(); // Clean up expired token
     return null;
   }
 
   try {
-    const response = await fetch(`${API_URL}/api/users/me?populate=role`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    // Strapi /users/me returns the user object directly, not wrapped in `data`
+    const userData = await fetchCMS<StrapiUser>(
+      { 
+        path: "/api/users/me", 
+        urlParams: { populate: "role" } 
       },
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        // Token invalid or expired
-        removeToken();
-        return null;
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    const userData: StrapiUsersMeResponse = await response.json();
+    );
     return userData;
   } catch (error) {
-    console.error("Get current user error:", error);
+    console.error("Get current user error:", error instanceof Error ? error.message : error);
+    // If the error is due to an invalid/expired token (e.g., 401 from API),
+    // fetchCMS would throw. We should clear the token.
+    if (error instanceof Error && (error.message.includes('401') || error.message.includes('Unauthorized'))) {
+      removeToken();
+    }
     return null;
   }
 };

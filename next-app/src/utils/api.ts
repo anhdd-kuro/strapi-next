@@ -23,35 +23,59 @@ export const fetchCMS = async <T>(
     | URL
     | {
         path: string;
-        urlParams: Record<string, unknown>;
-      }
+        urlParams?: Record<string, unknown>; // Make urlParams optional
+      },
+  options: RequestInit = {} // Add options parameter for method, headers, body
 ): Promise<T> => {
   let url: URL;
   if (params instanceof URL) {
     url = params;
   } else {
     url = new URL(params.path, API_URL);
-    url.search = qs.stringify(params.urlParams);
+    if (params.urlParams) {
+      url.search = qs.stringify(params.urlParams);
+    }
   }
 
-  try {
-    // Make the request with proper headers
-    const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  const defaultHeaders: HeadersInit = {
+    "Content-Type": "application/json",
+  };
 
-    // Handle non-200 responses
+  const mergedOptions: RequestInit = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers,
+    },
+  };
+
+  try {
+    const response = await fetch(url, mergedOptions);
+
     if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
+      // Try to parse error response for more details
+      try {
+        const errorData = await response.json();
+        console.error("API Error Data:", errorData);
+        throw new Error(
+          errorData.error?.message ||
+            `Error ${response.status}: ${response.statusText}`
+        );
+      } catch (jsonError) {
+        // If response is not JSON, throw generic error
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
     }
 
-    // Parse and return the JSON response
+    // Handle cases where response might be empty (e.g., 204 No Content)
+    if (response.status === 204) {
+      return {} as T; // Or null, depending on expected behavior
+    }
+
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("API request error:", error);
+    console.error("API request error:", url.toString(), options, error);
     throw error;
   }
 };
