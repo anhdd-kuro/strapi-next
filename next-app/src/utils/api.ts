@@ -2,30 +2,43 @@
  * API utilities for Strapi
  */
 
+import path from "path";
+import { URL } from "url";
+import qs from "qs";
+
 /**
- * Base URL for Strapi API 
+ * Base URL for Strapi API
  * In production, this would be an environment variable
  */
-export const API_URL = 'http://localhost:1337';
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:1337";
 
 /**
  * Fetch data from Strapi API
  * @param path - API endpoint path
  * @param urlParams - Query parameters
  */
-export const fetchAPI = async <T>(
-  path: string,
-  urlParams: Record<string, string> = {},
+export const fetchCMS = async <T>(
+  params:
+    | URL
+    | {
+        path: string;
+        urlParams: Record<string, unknown>;
+      }
 ): Promise<T> => {
-  // Create URL with path and params
-  const queryString = new URLSearchParams(urlParams).toString();
-  const url = `${API_URL}/api${path}${queryString ? `?${queryString}` : ''}`;
+  let url: URL;
+  if (params instanceof URL) {
+    url = params;
+  } else {
+    url = new URL(params.path, API_URL);
+    url.search = qs.stringify(params.urlParams);
+  }
 
   try {
     // Make the request with proper headers
     const response = await fetch(url, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -38,7 +51,7 @@ export const fetchAPI = async <T>(
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('API request error:', error);
+    console.error("API request error:", error);
     throw error;
   }
 };

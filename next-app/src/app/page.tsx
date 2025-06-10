@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { fetchAPI } from "@/utils/api";
+import { fetchCMS } from "@/utils/api";
 import type { Article, StrapiResponse } from "@/types/strapi";
 import ArticleCard from "./components/ArticleCard";
 
@@ -9,11 +9,14 @@ import ArticleCard from "./components/ArticleCard";
  */
 const getFeaturedArticles = async (): Promise<StrapiResponse<Article>> => {
   try {
-    return await fetchAPI<StrapiResponse<Article>>("/articles", {
-      "pagination[page]": "1",
-      "pagination[pageSize]": "3",
-      populate: "cover,category,author",
-      sort: "publishedAt:desc",
+    return await fetchCMS<StrapiResponse<Article>>({
+      path: "/articles",
+      urlParams: {
+        "pagination[page]": "1",
+        "pagination[pageSize]": "3",
+        populate: "cover,category,author",
+        sort: "publishedAt:desc",
+      },
     });
   } catch (error) {
     console.error("Failed to fetch featured articles:", error);

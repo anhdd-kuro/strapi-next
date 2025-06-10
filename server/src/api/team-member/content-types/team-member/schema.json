@@ -29,6 +29,14 @@
     },
     "slug": {
       "type": "uid"
+    },
+    "blocks": {
+      "type": "dynamiczone",
+      "components": [
+        "blocks.testimonial",
+        "blocks.spoiler",
+        "blocks.rich-text"
+      ]
     }
   }
 }

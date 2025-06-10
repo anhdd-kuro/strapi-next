@@ -1,29 +1,23 @@
 import qs from "qs";
 import Image from "next/image";
 import Link from "next/link";
+import { fetchCMS } from "@/utils/api";
 
 async function getTeamMembers() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:1337";
-  const path = "/api/team-members";
-
-  const url = new URL(path, baseUrl);
-
-  url.search = qs.stringify({
-    populate: {
-      photo: {
-        fields: ["alternativeText", "name", "url"],
+  const res = await fetchCMS<{ data: TeamMemberProps[] }>({
+    path: "/api/team-members",
+    urlParams: {
+      populate: {
+        photo: {
+          fields: ["alternativeText", "name", "url"],
+        },
       },
     },
   });
 
-  const res = await fetch(url);
+  console.log(res);
 
-  if (!res.ok) throw new Error("Failed to fetch team members");
-
-  const data = await res.json();
-  console.log(data);
-
-  return data;
+  return res.data;
 }
 
 interface TeamMemberProps {
@@ -56,7 +50,7 @@ function TeamMemberCard({
   }${photo.url}`;
   return (
     <Link
-      href={`/our-team/${slug}`}
+      href={`/team-members/${slug}`}
       className="bg-white rounded-lg shadow-md overflow-hidden"
     >
       <Image
@@ -80,7 +74,7 @@ export default async function OurTeam() {
     <div>
       <h1 className="text-3xl font-bold mb-8">Our Team</h1>
       <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {teamMembers.data.map((member: TeamMemberProps) => (
+        {teamMembers.map((member: TeamMemberProps) => (
           <li key={member.documentId}>
             <TeamMemberCard {...member} />
           </li>

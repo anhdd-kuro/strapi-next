@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_blocks_spoilers",
+  "info": {
+    "displayName": "Spoiler",
+    "icon": "user"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "text"
+    }
+  },
+  "config": {}
+}

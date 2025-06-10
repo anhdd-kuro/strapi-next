@@ -1,5 +1,41 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface BlocksRichText extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_rich_texts';
+  info: {
+    displayName: 'RichText';
+    icon: 'italic';
+  };
+  attributes: {
+    content: Schema.Attribute.Blocks;
+  };
+}
+
+export interface BlocksSpoiler extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_spoilers';
+  info: {
+    displayName: 'Spoiler';
+    icon: 'user';
+  };
+  attributes: {
+    content: Schema.Attribute.Text;
+    title: Schema.Attribute.String;
+  };
+}
+
+export interface BlocksTestimonial extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_testimonials';
+  info: {
+    displayName: 'Testimonial';
+    icon: 'check';
+  };
+  attributes: {
+    authorName: Schema.Attribute.String;
+    photo: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    quote: Schema.Attribute.Text;
+  };
+}
+
 export interface SharedMedia extends Struct.ComponentSchema {
   collectionName: 'components_shared_media';
   info: {
@@ -65,6 +101,9 @@ export interface SharedSlider extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'blocks.rich-text': BlocksRichText;
+      'blocks.spoiler': BlocksSpoiler;
+      'blocks.testimonial': BlocksTestimonial;
       'shared.media': SharedMedia;
       'shared.quote': SharedQuote;
       'shared.rich-text': SharedRichText;
